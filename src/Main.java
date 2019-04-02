@@ -74,7 +74,7 @@ public class Main {
 	        while ((st = br.readLine()) != null) {
 	        	String[] parts = st.split(" "); // split the line in three
 	        	String part1 = parts[0]; // command
-	        	System.out.println(part1);
+	        	//System.out.println(part1);
 	        	if(part1.contentEquals("Store")) {
 	        		String part2 = parts[1]; // command ID
 	                String part3 = parts[2]; // command Value
@@ -171,5 +171,14 @@ public class Main {
 		printLookupCommands();
 		System.out.println("Number of pages for main memory: " + mainMemorySize);
 		//System.out.println("Hello World");
+//		VMM vmm = new VMM(5);
+//		vmm.put(0,3);
+//		vmm.put(1,7);
+//		vmm.put(3,12);
+//		System.out.println(vmm.get(1));
+//		System.out.println(vmm.get(3));
+//		vmm.delete(0);
+//		vmm.delete(3);
+//		vmm.printArray();
     }
 }
