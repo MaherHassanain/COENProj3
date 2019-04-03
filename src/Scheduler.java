@@ -34,7 +34,7 @@ public class Scheduler extends Thread{
                 e.printStackTrace();
             }
 
-        while(Clock.clock < 10000){
+        while(procList.size() > 0){
 
             try {
                 sem.acquire();
