@@ -13,6 +13,8 @@ public class PageEntry {
     public void setLastAccess(int time){
         this.lastAccess = time;
     }
+    public void setPageNumber(int num){this.pageNumber = num;}
+    public void setVariableID(int id){this.variableID = id;}
 
     public int getVariableID() {
         return variableID;

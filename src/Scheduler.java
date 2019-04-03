@@ -5,25 +5,27 @@ import java.util.concurrent.Semaphore;
 public class Scheduler extends Thread{
 
     private ArrayList<Processes> procList;
-    private int Time;
-    private int startTime;
     private Semaphore sem;
     private MemoryManager memory;
-    private ArrayList<Store> storeComList;
+    private static ArrayList<Commands> comList;
+    private int memsize;
 
 
-    public Scheduler(ArrayList<Processes> pl, Semaphore sema){
+    public Scheduler(ArrayList<Processes> pl,int msize, Semaphore sema){
         this.procList = pl;
-        this.Time = 0;
-        this.startTime = 0;
         this.sem = sema;
-        //System.out.println("Time " + Time + ", Scheduler Thread Created: "+ this.getName());
-
+        this.memsize = msize;
     }
 
     public void run(){
+
+        // start memory manager
         memory = MemoryManager.getInstance();
+        // set memory size;
+        memory.setMemorySize(memsize);
+        memory.setPhysicalMemory();
         memory.start();
+
         boolean wait =true;
         int total = procList.size();
             try {
@@ -67,10 +69,7 @@ public class Scheduler extends Thread{
 
         }
 
-
-
-       // System.out.println(Clock.clock);
-
+        memory.memoryDump();
         memory.setFinished(true);
 
     }
@@ -83,7 +82,7 @@ public class Scheduler extends Thread{
                     sem.acquire();
                     //Clock.ready[Integer.parseInt(procList.get(i).getProcID()) -1] = false;
                     sem.release();
-                    procList.get(i).setStoreComList(storeComList);
+                    procList.get(i).setCommandList(comList);
                     procList.get(i).start();
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
@@ -132,11 +131,10 @@ public class Scheduler extends Thread{
         }
     }
 
-    public void setStoreComList(ArrayList<Store> storeComList) {
-        this.storeComList = storeComList;
+
+
+    public void setCommandList(ArrayList<Commands> commandList) {
+        this.comList = commandList;
     }
-
-
-
 }
 

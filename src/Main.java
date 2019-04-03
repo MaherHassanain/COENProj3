@@ -13,6 +13,7 @@ public class Main {
     static ArrayList<Store> storeComList = new ArrayList<Store>();
     static ArrayList<Release> releaseComList = new ArrayList<Release>();
     static ArrayList<Lookup> lookupComList = new ArrayList<Lookup>();
+    static ArrayList<Commands> commandList = new ArrayList<>();
 
 	public static void readProcesses(String filename) {
 		
@@ -84,17 +85,20 @@ public class Main {
 	                //System.out.println(part3);
 	                com = new Commands(part1, id);
 	                Store store = new Store(part1,Integer.parseInt(part2),Integer.parseInt(part3), id);
-	                storeComList.add(store); 
+	                storeComList.add(store);
+	                commandList.add(store);
 	                id++;
 	        	} else if (part1.contentEquals("Release")){
 	        		String part2 = parts[1]; // command ID
 	        		Release rel = new Release(part1,id,Integer.parseInt(part2));
-	        		releaseComList.add(rel); 
+	        		releaseComList.add(rel);
+	        		commandList.add(rel);
 	        		id++;
 	        	} else {
 	        		String part2 = parts[1]; // command ID
 	        		Lookup lu = new Lookup(part1,id,Integer.parseInt(part2));
-	        		lookupComList.add(lu); 
+	        		lookupComList.add(lu);
+	        		commandList.add(lu);
 	        		id++;
 	        	}
                 
@@ -172,13 +176,12 @@ public class Main {
 		//printReleaseCommands();
 		//printLookupCommands();
 		//System.out.println("Number of pages for main memory: " + mainMemorySize);
-		//System.out.println("Hello World");
 		Clock.ready = new boolean[procList.size()];
-		Scheduler myscheduler = new Scheduler(procList,sem);
-		myscheduler.setStoreComList(storeComList);
+		Scheduler myscheduler = new Scheduler(procList,mainMemorySize,sem);
+		myscheduler.setCommandList(commandList);
 		myscheduler.start();
 		myscheduler.join();
-		//System.out.println("over");
+
 
     }
 }
