@@ -46,47 +46,52 @@ public class MemoryManager extends Thread {
     }
 
     public void run(){
-        System.out.println(", memory manager"  + " Started");
-        synchronized (this) {
-            try {
-                while (!finished) {
-                    //System.out.println( "memory manager waiting");
-                    this.wait();
-                }
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        System.out.println("clock: " + Clock.clock + ", Memory Manager"  + " Started");
+
+        while (!finished) {
+
         }
     }
 
     public void pause(){
         System.out.println(", memory manager"  + " Paused");
-        this.suspend();
+        //this.suspend();
     }
     public void finish(){
         System.out.println( ", memory manager"  + " Finished ");
-        this.stop();
+        //this.stop();
     }
     public void printMemSize(){
         System.out.println("Memory Size: " + memorySize);
     }
-    public void store(int id, int value,int time){
+    public void store(int id, int value,int pid){
         //int varid = Integer.parseInt(id);
         int varid = id;
         //if list is less than the memory size just add it directly
+        int pagenum = findPageNumber(id);
         if(pages.size() < this.memorySize) {
-
             //System.out.println("Pages Size" + pages);
             physicalMemory[pages.size()][0] = varid;
             physicalMemory[pages.size()][1] = value;
-            pages.add(new PageEntry(varid, pages.size(), time));
-            System.out.println("clock: store" + varid + " " + value + " " +time);
-        }
-        int pagenum = findPageNumber(id);
-        if(pagenum < 0){
-            pages.add(new PageEntry(varid,pages.size(),time));
-            System.out.println("clock: store" + varid + " " + value+ " " +time);
-            write(id + " " + pages.size()+ " " + time);
+            pages.add(new PageEntry(varid, pages.size(), Clock.clock));
+            System.out.println("clock: " + Clock.clock +", Process " + pid + " Store: Variable " + varid + ", Value: " + value);
+        }else if(pagenum < 0){
+            pages.add(new PageEntry(varid,pages.size(),Clock.clock));
+            System.out.println("clock: " + Clock.clock +", Process " + pid + " Store: Variable " + varid + ", Value: " + value);
+            write(id + " " + value);
+        }else{
+            //overwrite previous value
+            PageEntry tempPage = pages.get(pagenum); // pagenum corresponds to array index
+            if(pagenum < this.memorySize){ // then it is in physical memory
+                physicalMemory[pagenum][0] = varid;
+                physicalMemory[pagenum][1] = value;
+                pages.get(pagenum).setLastAccess(Clock.clock);
+                System.out.println("clock: " + Clock.clock +", Process " + pid + " Store: Variable " + varid + ", Value: " + value);
+            }else{ // the id is on disk so overwrite the disk value
+                pages.get(pagenum).setLastAccess(Clock.clock);
+                write(id + " " + pages.size());
+                System.out.println("clock: " + Clock.clock +", Process " + pid + " Store: Variable " + varid + ", Value: " + value);
+            }
         }
 
     }
@@ -104,16 +109,12 @@ public class MemoryManager extends Thread {
     }
 
     public void write(String text){
-        Writer writer = null;
-
-        try {
-            writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream("filename.txt"), "utf-8"));
-            writer.write(text);
+        try{
+        FileWriter writer = new FileWriter("filename.txt",true);
+        writer.write(text);
+        writer.close();
         } catch (IOException ex) {
             // Report
-        } finally {
-            try {writer.close();} catch (Exception ex) {/*ignore*/}
         }
     }
 }

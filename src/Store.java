@@ -27,6 +27,6 @@ public class Store extends Commands{
 	}
 	
 	public int getValue() {
-		return varID;
+		return value;
 	}
 }

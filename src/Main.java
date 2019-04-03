@@ -3,10 +3,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.concurrent.*;
 
 public class Main {
 	
 	static int mainMemorySize = 0;
+	static Semaphore sem;
     static ArrayList<Processes> procList = new ArrayList<Processes>();
     static ArrayList<Store> storeComList = new ArrayList<Store>();
     static ArrayList<Release> releaseComList = new ArrayList<Release>();
@@ -31,7 +33,7 @@ public class Main {
 	                 String part1 = parts[0]; // ready time
 	                 String part2 = parts[1]; // duration time
 	                 String procID = Integer.toString(linecount);
-	                 proc = new Processes(procID,Integer.parseInt(part1),Integer.parseInt(part2));
+	                 proc = new Processes(procID,Integer.parseInt(part1),Integer.parseInt(part2),sem);
 	                 procList.add(proc);
 	        	 }
 	        	 //System.out.println(st);
@@ -74,7 +76,7 @@ public class Main {
 	        while ((st = br.readLine()) != null) {
 	        	String[] parts = st.split(" "); // split the line in three
 	        	String part1 = parts[0]; // command
-	        	System.out.println(part1);
+	        	//System.out.println(part1);
 	        	if(part1.contentEquals("Store")) {
 	        		String part2 = parts[1]; // command ID
 	                String part3 = parts[2]; // command Value
@@ -157,19 +159,26 @@ public class Main {
         	lu.printLookupCommands();
         });
     }
-	
-	
-	public static void main(String[] args)  {
+
+	public static void main(String[] args) throws InterruptedException {
+		sem = new Semaphore(1);
 		if(args != null){
 	           readProcesses("processes.txt");
 	           readMemSize("memconfig.txt");
 	           readCommands("commands.txt");
 	        }
-		printProccesses();
-		printStoredCommands();
-		printReleaseCommands();
-		printLookupCommands();
-		System.out.println("Number of pages for main memory: " + mainMemorySize);
+		//printProccesses();
+		//printStoredCommands();
+		//printReleaseCommands();
+		//printLookupCommands();
+		//System.out.println("Number of pages for main memory: " + mainMemorySize);
 		//System.out.println("Hello World");
+		Clock.ready = new boolean[procList.size()];
+		Scheduler myscheduler = new Scheduler(procList,sem);
+		myscheduler.setStoreComList(storeComList);
+		myscheduler.start();
+		myscheduler.join();
+		//System.out.println("over");
+
     }
 }
